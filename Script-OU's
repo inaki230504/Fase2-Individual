@@ -1,0 +1,12 @@
+#Script para crear OU's
+$domain="dc=tir-smc-comp,dc=mylocal" #Esto es simplemente para la linea del final no afecta nada a lo que es el script en si.
+$ficherocsvUO=Read-Host "Introduce el fichero csv para los UO's" #Estoy creando una variable la cual almacenara gracias a Read-Host el contenido de la respues del usuario en $ficherocsvUO.
+$fichero = import-csv -Path $ficherocsvUO -delimiter % #Estamos importando el fichero csv indicado por el usuario.
+foreach($line in $fichero) #Esto es para que repita lo de abajo igual al numero de lineas.
+	{
+		New-ADOrganizationalUnit -Description:$line.Description -Name$line.Name `    #Estamos especificando los parametros que queremos rellenar de New-ADOrganizationalUnit
+		-Path $line.Path -ProtectedFromAccidentalDeletion:$true
+	}
+
+
+Write-Host "Se han creado las UOs satisfactoriamente en el dominio $domian" #Mensaje que se mostrara al final del script
