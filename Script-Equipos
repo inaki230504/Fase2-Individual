@@ -1,0 +1,12 @@
+$domain="dc=tir-scm-comp,dc=local" #No interfiere con la creación de los grupos simplemente es para el final.
+$equiposCsv=Read-Host "Introduce el fichero csv de equipos" #Estoy creando una variable la cual almacenara gracias a Read-Host el contenido de la respues del usuario en $equiposCsv.
+$fichero = import-Csv -Path $equiposCsv -delimiter "%" #Estamos importando el fichero csv indicado por el usuario.
+foreach($linea in $fichero) #Esto es para que repita lo de abajo igual al numero de lineas.
+{
+	New-ADComputer -Enable:$true -Name:$linea.computer ` #Estamos especificando los parametros que queremos rellenar de New-ADComputer
+			-SamAccountName:$linea.Computer
+}
+
+write-Host ""
+write-Host "Se ha creado con exito los equipo en $domain" -Fore green #Mensaje que se mostrara al final del script
+write-Host ""
