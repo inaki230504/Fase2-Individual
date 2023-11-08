@@ -1,11 +1,11 @@
 $domain="dc=tir-smc-comp,dc=mylocal" #No interfiere con la creación de los grupos simplemente es para el final.
-$gruposCsv=Read-Host "Introduce el fichero csv de Grupos:" # #Estoy creando una variable la cual almacenara gracias a Read-Host el contenido de la respues del usuario en $gruposCsv.
+$gruposCsv=Read-Host "Introduce el fichero csv de Grupos:" #Estoy creando una variable la cual almacenara gracias a Read-Host el contenido de la respues del usuario en $gruposCsv.
 $fichero = import-Csv -Path $gruposCsv -delimiter "%" #Estamos importando el fichero csv indicado por el usuario.
 
 foreach($linea in $fichero)  #Esto es para que repita lo de abajo igual al numero de lineas.
 {
 
-	New-ADGroup -Name:$linea.Name -Description:$linea.Description `  #Estamos especificando los parametros que queremos rellenar de New-New-ADGroup
+	New-ADGroup -Name:$linea.Name -Description:$linea.Description `  #Estamos especificando los parametros que queremos rellenar de New-ADGroup
 		-GroupCategory:$linea.Category `
 		-GroupScope:$linea.Scope `
 		-Path:$linea.Path
