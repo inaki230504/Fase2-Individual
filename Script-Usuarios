@@ -1,0 +1,34 @@
+$domain="dc=tir-smc-comp,dc=mylocal" #No interfiere con la creación de los grupos simplemente es para el final.
+$fileUsersCsv=Read-Host "Introduce el fichero csv de los usuarios"  #Estoy creando una variable la cual almacenara gracias a Read-Host el contenido de la respues del usuario en $fileUsersCsv.
+
+	$fichero = import-Csv -Path $fileUsersCsv -Delimiter "%" #Estamos importando el fichero csv indicado por el usuario.
+
+	foreach($linea in $fichero)  #Esto es para que repita lo de abajo igual al numero de lineas.
+	{
+	
+
+    $passAccount=ConvertTo-SecureString $linea.Password -AsPlaintext -force #Estamos creando una variable en la cual almacena la contraseña que estamos encriptando.
+	$Surnames=$linea.Name+' '+$linea.Surname #En esta variable estamos juntando con un espacio en medio el nombre y los apellidos.
+	$nameLarge=$line.Email #Se esta metiendo en la variable nameLarge el objeto.Email.
+  $email=$line.Email #Se esta metiendo en la variable nameLarge el objeto.Email.
+	[boolean]$enable=$true #Se esta metiendo en la variable enable $true.
+	$ExpirationAccount = $line.TurnPassDays #Se esta metiendo en la variable enable $true.
+	$timeExp = (get-date).AddDays($ExpirationAccount) #Se esta haciendo que el contenido de $ExpirationAccount tenga un formato distinto entendible para el scrip.
+	
+	New-ADUser -SamAccountName $line.Account -UserPrincipalName $line.Account ` #Esto es para que repita lo de abajo igual al numero de lineas.
+		-Name $linea.Account -Surname $linea.Surname -DisplayName $nameLarge `  
+		-GivenName $line.Name -Description "Cuenta de  $nameLarge" -EmailAddress $email `
+		-AccountPassword $passAccount -Enable $line.Enable `
+		-CannotChangePassword $false -ChangePasswordAtLogon $true `
+		-PasswordNotRequired $false -Path $linea.Path -AccountExpirationDate $timeExp `
+		-LogonWorkstations $linea.computer 
+
+	$horassesion = $linea.NetTime -replace(" ","") 
+	net user $linea.Account /times:$horassesion
+	$cnGrpAccount= "CN"+"="+$linea.Group+","+$linea.Path
+	Add-ADGroupMember -Identity $cnGrpAccount -Members $linea.account
+	}
+
+	write-Host ""
+	write-Host "se han creado los usuarios satisfactoriamente en $domain" -Fore green
+	write-Host ""
