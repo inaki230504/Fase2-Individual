@@ -15,7 +15,7 @@ $fileUsersCsv=Read-Host "Introduce el fichero csv de los usuarios"  #Estoy crean
 	$ExpirationAccount = $line.TurnPassDays #Se esta metiendo en la variable enable $true.
 	$timeExp = (get-date).AddDays($ExpirationAccount) #Se esta haciendo que el contenido de $ExpirationAccount tenga un formato distinto entendible para el scrip.
 	
-	New-ADUser -SamAccountName $line.Account -UserPrincipalName $line.Account ` #Esto es para que repita lo de abajo igual al numero de lineas.
+	New-ADUser -SamAccountName $line.Account -UserPrincipalName $line.Account ` #Esto es para que repita lo de abajo igual al numero de lineas
 		-Name $linea.Account -Surname $linea.Surname -DisplayName $nameLarge `  
 		-GivenName $line.Name -Description "Cuenta de  $nameLarge" -EmailAddress $email `
 		-AccountPassword $passAccount -Enable $line.Enable `
