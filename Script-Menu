@@ -1,0 +1,123 @@
+#Nota algunas cosas no las voy a explicar por que ya están explicadas en los otros githubs.
+$domain="dc=smr,dc=local" 
+function Show-Menu #Estamos creando una función con lo cual todo lo que haya debajo de esta misma entre () se ejecutara.
+{
+	param(
+		[string]$Titulo = 'MenÃº principal' #En general todo lo que hay abajo es para que se muestre en la interfaz no interfiere a lo que es activar cierta función.
+	)
+	clear-Host
+	Write-Host "============== $Titulo =============="
+
+	Write-Host "1: OpciÃ³n '1' Crear UOs."
+	Write-Host "2: OpciÃ³n '2' Crear Grupos."
+	write-Host "3: OpciÃ³n '3' Crear Usuarios."
+    write-Host "4: Opsión  '4' Crear equipos."    
+	write-Host "Q: OpciÃ³n 'Q' Salir."
+}
+	function tiran_UOs
+{
+	$ficherocsvUO=Read-Host "Introduce el fichero csv para los UO's"
+	$fichero = import-csv -Path $ficherocsvUO -delimiter "%"
+	foreach($line in $fichero)
+	
+	{
+		New-ADOrganizationalUnit -Description:$line.Description -Name $line.Name `
+		-Path $line.Path -ProtectedFromAccidentalDeletion:$true
+	}
+	
+
+
+	Write-Host "Se han creado las UOs satisfactoriamente en el dominio $domian"
+}
+	function tiran_grupos
+{
+	$gruposCsv=Read-Host "Introduce el fichero csv de Grupos:"
+	$fichero = import-Csv -Path $gruposCsv -delimiter "%"
+
+	foreach($linea in $fichero)
+	{
+
+	New-ADGroup -Name:$linea.Name -Description:$linea.Description `
+		-GroupCategory:$linea.Category `
+		-GroupScope:$linea.Scope `
+		-Path:$linea.Path
+	}
+	write-Host ""
+	write-Host "Se han creado los grupos en el dominio $domain" -Fore green
+	write-Host ""
+}
+function tiran_usuarios
+{
+    $domain="dc=tir-smc-comp,dc=mylocal"
+    $fileUsersCsv=Read-Host "Introduce el fichero csv de los usuarios"
+    $fichero = import-Csv -Path $fileUsersCsv -Delimiter "%"
+
+	foreach($linea in $fichero)
+	{
+    $passAccount=ConvertTo-SecureString $linea.Password -AsPlaintext -force 
+	$Surnames=$linea.Name+' '+$linea.Surname
+	$nameLarge=$line.Email 
+	[boolean]$enable=$true
+	$ExpirationAccount = $line.TurnPassDays
+	$timeExp = (get-date).AddDays($ExpirationAccount)
+	
+	New-ADUser -SamAccountName $line.Account -UserPrincipalName $line.Account `
+		-Name $linea.Account -Surname $linea.Surname -DisplayName $nameLarge `
+		-GivenName $line.Name -Description "Cuenta de  $nameLarge" -EmailAddress $email `
+		-AccountPassword $passAccount -Enable $enable `
+		-CannotChangePassword $false -ChangePasswordAtLogon $true `
+		-PasswordNotRequired $false -Path $linea.Path -AccountExpirationDate $timeExp `
+		-LogonWorkstations $linea.computer 
+
+	$horassesion = $linea.NetTime -replace(" ","")
+	net user $linea.Account /times:$horassesion
+	$cnGrpAccount= "CN"+"="+$linea.Group+","+$linea.Path
+	Add-ADGroupMember -Identity $cnGrpAccount -Members $linea.account
+	}
+
+	write-Host ""
+	write-Host "se han creado los usuarios satisfactoriamente en $domain" -Fore green
+	write-Host ""
+}
+function tiran-equipos
+{
+$domain="dc=tir-scm-comp,dc=local"
+$equiposCsv=Read-Host "Introduce el fichero csv de equipos"
+$fichero = import-Csv -Path $equiposCsv -delimiter "%"
+foreach($linea in $fichero)
+{
+	New-ADComputer -Enable:$true -Name:$linea.computer `
+			-SamAccountName:$linea.Computer -Path:$linea.Path
+}
+
+write-Host ""
+write-Host "Se ha creado con exito los equipo en $domain" -Fore green
+write-Host ""
+}	
+
+do #Aqui es donde vamos a ejecutar los script.
+{
+	Show-Menu 
+	$input = Read-Host "Por favor , pulsa una opciÃ³n" #Aquí le está pidiendo que ingrese un valor que se almacenara en $input.
+	switch ($input) #Esto permitira que depende del valor en input ejecute uno u otro de los de abajo.
+	{
+		'1' {             #Como podemos ver este ejecutara la función tiran-UOs.
+			clear-Host
+			tiran_UOs
+		} '2' {             #Como podemos ver este ejecutara la función tiran-grupos.
+			clear-Host
+			tiran_grupos
+		} '3' {              #Como podemos ver este ejecutara la función tiran-usuarios.
+			clear-Host
+			tiran_usuarios
+    } '4' {
+             clear-Host
+             tiran-equipos     #Como podemos ver este ejecutara la función tiran-equipos.
+		} 'q' {
+			'Salimos de la App'
+			return
+		}
+	}
+	pause
+}
+until ($input -eq 'q') #Aqui estamos diciendo que si $input es igual a q acaba.
